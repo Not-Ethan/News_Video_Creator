@@ -29,7 +29,7 @@ class NewsArticle(TypedDict):
     source: Source
 
 
-def fetch_articles(category:Literal['business','entertainment','general','health','science','sports','technology'] | None=None,toFile=None) -> list[NewsArticle]:
+def fetch_articles(category:Literal['business','entertainment','general','health','science','sports','technology'] | None=None,to_file=None) -> list[NewsArticle]:
     raw_response = news_client.get_top_headlines(country='us', category=category)
     top_headlines = raw_response['articles']
 
