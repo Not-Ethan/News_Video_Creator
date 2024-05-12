@@ -7,7 +7,10 @@ from newspaper import Article
 from dotenv import load_dotenv
 import os
 import json
-from typing import TypedDict, Literal
+from typing import TypedDict, Literal, Callable
+import logging
+
+logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
 
 load_dotenv()
 
@@ -29,10 +32,9 @@ class NewsArticle(TypedDict):
 def fetch_articles(category:Literal['business','entertainment','general','health','science','sports','technology'] | None=None,toFile=None) -> list[NewsArticle]:
     raw_response = news_client.get_top_headlines(country='us', category=category)
     top_headlines = raw_response['articles']
-    num_responses = raw_response['totalResults']
 
-    articles_with_content = []
-
+    #add content to top headlines - news client truncates to 200 lines
+    articles_with_content:list[NewsArticle] = []
     for article in top_headlines:
         scraped_article = Article(article['url'])
         try:
@@ -49,12 +51,16 @@ def fetch_articles(category:Literal['business','entertainment','general','health
                 'source': article['source']
                 }
         except Exception as e:
-            print(e.with_traceback())
+            logging.exception("Error fetching")
             continue
 
         articles_with_content.append(json_article)
+    
+    #sometimes article is empty
+    filter_conditions: Callable[[NewsArticle], bool] = lambda article: article.get("content") != ""
+    filtered_articles = list(filter(filter_conditions, articles_with_content))
 
     if toFile:
         with open(toFile, "w") as outfile:
-            outfile.write(json.dumps(articles_with_content, indent=4))
-    return articles_with_content
+            outfile.write(json.dumps(filtered_articles, indent=4))
+    return filtered_articles
