@@ -60,7 +60,7 @@ def fetch_articles(category:Literal['business','entertainment','general','health
     filter_conditions: Callable[[NewsArticle], bool] = lambda article: article.get("content") != ""
     filtered_articles = list(filter(filter_conditions, articles_with_content))
 
-    if toFile:
-        with open(toFile, "w") as outfile:
+    if to_file:
+        with open(to_file, "w") as outfile:
             outfile.write(json.dumps(filtered_articles, indent=4))
     return filtered_articles
