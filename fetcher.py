@@ -57,7 +57,7 @@ def fetch_articles(category:Literal['business','entertainment','general','health
         articles_with_content.append(json_article)
     
     #sometimes article is empty
-    filter_conditions: Callable[[NewsArticle], bool] = lambda article: article.get("content") != ""
+    filter_conditions: Callable[[NewsArticle], bool] = lambda article: article.get("content") != "" or article.get("title").lower()=="[removed]"
     filtered_articles = list(filter(filter_conditions, articles_with_content))
 
     if to_file:
